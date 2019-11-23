@@ -1,0 +1,11 @@
+{
+  "autoload": {
+    "psr-4": {
+      "constructor\\": "constructor"
+    }
+  },
+  "require": {
+    "php": ">=5.6",
+    "ext-json": "*"
+  }
+}
