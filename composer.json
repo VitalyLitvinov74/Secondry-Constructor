@@ -1,4 +1,13 @@
 {
+  "name": "vitaly/secondry-constructor",
+  "description": "This pacage This package allows you to use secondary constructors in php.",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Vitaly Litvinov",
+      "email": "cheltend@mail.ru"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "constructor\\": "constructor"
