@@ -46,7 +46,7 @@ class DifferentAgruments
      * Вдруг мне вместо двух строк захотелось передавать 2 числа.
     */
     private function build_2_int_int(int $val, int $val2){
-
+        $this->build_2((string) $val, (string) $val2);
     }
 
     public function render(){
@@ -61,7 +61,10 @@ echo $difArgs->render() . '<br>'; //this is string constructor
 $difArgs = new DifferentAgruments("str1"); //ttrwersd - is string constructor
 echo $difArgs->render() . '<br>';
 
-$difArgs = new DifferentAgruments(1); //ttrwersd - is string constructor
+$difArgs = new DifferentAgruments(1); //1 - is int constructor
+echo $difArgs->render() . '<br>';
+
+$difArgs = new DifferentAgruments(222, 3333); //1 - is int constructor
 echo $difArgs->render() . '<br>';
 
 $difArgs = new DifferentAgruments("str1", "str2", 'str3'); //Method build_3 does not exist
