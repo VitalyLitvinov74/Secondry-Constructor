@@ -14,7 +14,7 @@ class DifferentAgruments
     private $val2;
 
     public function __construct($type1 = null, $type2 = null) {
-        new Constructor($this, func_get_args());
+        new Constructor();
     }
 
     private function build_0(){

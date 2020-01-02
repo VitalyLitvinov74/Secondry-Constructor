@@ -15,31 +15,40 @@ class Constructor
 
     private $reflection_class;
     private $class;
+    private $debug;
     private const construct_name = "build_";
 
-    public function __construct($class, $args)
+    public function __construct()
     {
         try {
-            $this->class = $class;
-            $this->reflection_class = new \ReflectionClass(get_class($class));
+            $this->debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2);
+            $this->reflection_class = new \ReflectionClass($this->className());
         } catch (\ReflectionException $e) {
             $this->err($e);
         }
-        $this->run($args);
+        $this->run();
     }
 
     /**
      * Поиск и вызов необходимого конструктора
-     * Критерии выбора:
-     * 1. типы аргументов должны совпадать
-     * 2. Кол-во аргументов должно совпадать
-     * Если такого конструктора нет то ошибка.
      *
-     * @param array $args - входные параметры класса
+     * Если нужного конструктора не будет то выбросит исключение.
      * */
-    private function run(array $args): void
+    private function run(): void
     {
-        $this->run_1($args);
+        try {
+            $method = $this->reflection_class->getMethod(
+                $this->generate_method_name()
+            );
+            $method->setAccessible(true);
+            $method->invokeArgs(
+                $this->classObject(),
+                $this->args()
+            );
+            $method->setAccessible(false);
+        } catch (\ReflectionException $e) {
+            $this->err($e);
+        }
     }
 
     private function attribute_type($val): string
@@ -53,13 +62,13 @@ class Constructor
 
     /**
      * Здесь происходит генерация имени метода.
+     * @throws ReflectionException
      */
-    private function calling_method_name(array $args): string
+    private function generate_method_name(): string
     {
-        $count = count($args);
         $suffix = '';
-        if (!$this->is_main_construct($args)) {
-            foreach ($args as $arg) {
+        if (!$this->is_main_construct()) {
+            foreach ($this->args() as $arg) {
                 $str = $this->attribute_type($arg);
                 if ($str == 'integer') {
                     $str = 'int';
@@ -68,9 +77,9 @@ class Constructor
             }
         }
         if ($suffix !== '') {
-            return self::construct_name . $count . $suffix;
+            return self::construct_name . $this->count() . $suffix;
         }
-        return self::construct_name . $count;
+        return self::construct_name . $this->count();
     }
 
     /**
@@ -78,53 +87,53 @@ class Constructor
      * с суффиксом или без суффикса.
      * @throws ReflectionException
      */
-    private function is_main_construct(array $args): bool
+    private function is_main_construct(): bool
     {
-        $count = count($args);
-        $name = self::construct_name . $count;
-        if (method_exists($this->class, $name)) {
-            $ref = new \ReflectionMethod($this->class, $name);
-            $params = $ref->getParameters();
+        $args = $this->args();
+        $name = self::construct_name . $this->count();
+        if (method_exists($this->className(), $name)) { //если существует метод на подобии build_1
+            $ref = new \ReflectionMethod($this->className(), $name);
+            $params = $ref->getParameters(); //получаем параметры метода build_1
             for ($i = 0; $i <= count($params) - 1; $i++) {
                 /**@var ReflectionParameter $param [$i] */
                 $type = $params[$i]->getType()->__toString(); //не проверялась работа с именами классов.
+                //сверяются типы данных переданных на главный конструктор
+                // и типы данных которые присутствуют в build_1
+                // Если данные не совпадают значит нужно вызывать точно не build_1
+                // а вторичный конструктор с суффиксом.
                 if ($type !== $this->attribute_type($args[$i])) {
                     return false;
                 }
             }
+            //Если все типы данных, переданных в главный конструктор
+            //полностью сходятся с существующим build_1 то следовательно нужно вызвывать build_1
+            //следовательно проверяемый конструктор - конструктор без суффикса.
             return true;
         }
         return false;
     }
 
-    /**
-     * Вызывает приватный конструктор, и передает в него аргументы
-     *
-     * @param string $const_suffix
-     * @param array  $args
-     *
-     * @throws \ReflectionException
-     */
-    private function call_private_constructor(array $args): void
+    private function className(): string
     {
-        $method = $this->reflection_class->getMethod($this->calling_method_name($args));
-        $method->setAccessible(true);
-        $method->invokeArgs($this->class, $args);
-        $method->setAccessible(false);
+        return $this->debug[1]['class'];
     }
 
-    /**
-     * запускает конструктор в который передано от 0 до всех параметров.
-     *
-     * @param array $args - входные параметры класса
-     */
-    private function run_1(array $args): void
+    private function args(): array
     {
-        try {
-            $this->call_private_constructor($args);
-        } catch (\ReflectionException $e) {
-            $this->err($e);
+        return $this->debug[1]['args'];
+    }
+
+    private function classObject()
+    {
+        return $this->debug[1]['object'];
+    }
+
+    private $count;
+    private function count(){
+        if (!$this->count and $this->count !==0){
+            $this->count = count($this->args());
         }
+        return $this->count;
     }
 
     private function err(ReflectionException $e)
