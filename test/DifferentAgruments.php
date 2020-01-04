@@ -14,7 +14,7 @@ class DifferentAgruments
     private $val2;
 
     public function __construct($type1 = null, $type2 = null) {
-        new Constructor($this, func_get_args());
+        new Constructor($this);
     }
 
     private function build_0(){
@@ -55,8 +55,8 @@ class DifferentAgruments
 
 }
 
-$difArgs = new DifferentAgruments();
-echo $difArgs->render() . '<br>'; //this is string constructor
+//$difArgs = new DifferentAgruments();
+//echo $difArgs->render() . '<br>'; //this is string constructor
 
 $difArgs = new DifferentAgruments("str1"); //ttrwersd - is string constructor
 echo $difArgs->render() . '<br>';
