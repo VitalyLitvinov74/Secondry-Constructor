@@ -38,7 +38,7 @@ class Constructor
         }
         $this->root_name = $construct_name;
         if (!$args) {
-            $this->debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+            $this->debug = debug_backtrace(null, 2);
             $args = $this->args();
         }
         $this->args = $args;
