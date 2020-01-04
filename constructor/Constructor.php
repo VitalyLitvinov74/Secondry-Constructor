@@ -111,7 +111,7 @@ class Constructor
             $ref = new \ReflectionMethod($this->class, $name);
             $params = $ref->getParameters(); //получаем параметры метода build_1
             for ($i = 0; $i <= count($params) - 1; $i++) {
-                if (!$type_equaled = $this->type_equaled($params[$i]->name, $args[$i])) {
+                if (!$type_equaled = $this->type_equaled($params[$i]->getType()->getName(), $args[$i])) {
                     return $type_equaled;
                 }
             }
@@ -132,9 +132,9 @@ class Constructor
         return $type;
     }
 
-    private function type_equaled($type1, $type2): bool
+    private function type_equaled($refType, $constructorType): bool
     {
-        if ($this->value_type($type1) === $this->value_type($type2)) {
+        if ($this->value_type($constructorType) === $refType) {
             return true;
         }
         return false;

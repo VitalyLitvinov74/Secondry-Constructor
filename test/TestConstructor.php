@@ -3,6 +3,7 @@
 use constructor\Constructor;
 
 require_once '../vendor/autoload.php';
+require_once 'ForTestClass.php';
 
 class TestConstructor
 {
@@ -17,6 +18,16 @@ class TestConstructor
     private function build_3(string $test, string $test2, string $test3)
     {
         $i = 1;
+        echo '<br> Вызван build_3';
+    }
+
+    private function build_1(ForTestClass $test){
+        $i = 1;
+        echo '<br> Вызван build_1';
+    }
+
+    private function build_1_string(string $test){
+        echo '<br> Вызван build_1_string';
     }
 
     public function startTest()
@@ -60,10 +71,10 @@ class TestConstructor
 
     private function type_equaled(): bool
     {
-        if ($this->set_public_method('type_equaled', 123.22, 1232.22)
-            and !$this->set_public_method('type_equaled', 1232, 1232.22)
-            and !$this->set_public_method('type_equaled', ['asd'], 1232.22)
-            and !$this->set_public_method('type_equaled', 'asd', 1232.22)
+        if ($this->set_public_method('type_equaled', 'double', 1232.22)
+            and !$this->set_public_method('type_equaled', 'integer', 1232.22)
+            and $this->set_public_method('type_equaled', 'array', ['asd'])
+            and !$this->set_public_method('type_equaled', 'doublee', 1232.22)
         ) {
             return true;
         }
@@ -97,18 +108,20 @@ class TestConstructor
     public function result()
     {
         if($this->startTest()){
-            echo  'Все хорошо';
-            die;
+            echo  '<br>'.'Все хорошо'.'<br>';
+        }else{
+            echo '<pre>';
+            var_dump($this->errors);
+            echo '</pre>';
         }
-        echo '<pre>';
-        var_dump($this->errors);
-        echo '</pre>';
-        die;
     }
 
 
 }
 
-$test = new TestConstructor("test", "test2", 'test3');
+$test = new TestConstructor("test", "test2", 'test3'); //вызовет build_3
 $test->result();
-
+$test = new TestConstructor(new ForTestClass()); //Вызовет build_1
+$test->result();
+$test = new TestConstructor("hello world"); //вызовет build_1_string
+$test->result();
