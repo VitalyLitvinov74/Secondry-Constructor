@@ -134,7 +134,7 @@ class Constructor
 
     private function type_equaled($refType, $constructorType): bool
     {
-        if ($this->value_type($constructorType) === $refType) {
+        if (strtolower($this->value_type($constructorType)) === strtolower($refType)) {
             return true;
         }
         return false;
