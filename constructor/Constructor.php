@@ -126,10 +126,14 @@ class Constructor
     private function value_type($val): string
     {
         $type = gettype($val); //если тип простой.
-        if ($type == 'object') {
-            return get_class($val);
+        switch ($type){
+            default:
+                return $type;
+            case "object":
+                return get_class($val);
+            case "boolean":
+                return 'bool';
         }
-        return $type;
     }
 
     private function type_equaled($refType, $constructorType): bool
